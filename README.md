@@ -38,7 +38,7 @@
 
 ![Screen Shot](Demo.jpg)
 
-## Báo cáo (Tiếng Việt)
+## Báo cáo
 
 ### 1. Tên project & mô tả
 - **Tên project:** Game Flappy Bird trên STM32F429IZIT6-DISC0
