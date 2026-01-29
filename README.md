@@ -36,6 +36,8 @@
 
 ## About The Project
 
+[![Demo Video](https://img.youtube.com/vi/7jzeVExiOc0/hqdefault.jpg)](https://www.youtube.com/shorts/7jzeVExiOc0)
+
 ![Screen Shot](Demo.jpg)
 
 ## Báo cáo
