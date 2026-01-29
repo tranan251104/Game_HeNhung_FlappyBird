@@ -46,7 +46,7 @@ void FlappyScreenView::handleKeyEvent(uint8_t key)
     if (key == 0) {
         // Start game on first press and apply jump impulse.
         gameRunning = true;
-        birdVel_fp = -1200;
+        birdVel_fp = -800;
     }
 }
 
@@ -56,7 +56,7 @@ void FlappyScreenView::handleTickEvent()
         return;
     }
 
-    const int32_t gravity_fp = 90;
+    const int32_t gravity_fp = 45;
     const int16_t speed = 2;
     const int16_t screenH = 320;
     const int16_t spacing = 70;

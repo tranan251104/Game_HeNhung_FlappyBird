@@ -102,6 +102,8 @@ uint16_t topScore = 0;
 uint8_t timeCounter = 0;
 uint8_t autoMode = 0;
 uint8_t screenNumber = 3; // FLAPPY IS 1 OTHERS NUMBERED
+uint8_t buzzerActive = 0;
+uint32_t buzzerUntil = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -196,7 +198,8 @@ int main(void)
   MX_RNG_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
+  // Buzzer is active when PA0 is LOW (wired: +3V to buzzer +, PA0 to buzzer -)
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
 
   MX_TouchGFX_PreOSInit();
   MX_TouchGFX_Init();
@@ -681,9 +684,16 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PA0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB7 */
+  GPIO_InitStruct.Pin = GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PD12 PD13 */
   GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13;
@@ -693,8 +703,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -704,11 +714,14 @@ static void MX_GPIO_Init(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	currentmillis = HAL_GetTick();
-	if (GPIO_Pin == GPIO_PIN_0 && currentmillis - previousMillis > 50){
-		// Use USER button only for bird control during gameplay.
-		if(screenNumber == 1 && HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0)){
+	if (GPIO_Pin == GPIO_PIN_7 && currentmillis - previousMillis > 50){
+		// External button on PB7 controls bird during gameplay.
+		if(screenNumber == 1 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_RESET){
 			User_ButtonState = 0x01;
 			previousMillis = currentmillis;
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+			buzzerActive = 1;
+			buzzerUntil = currentmillis + 60;
 		}
 	}
 }
@@ -1052,7 +1065,11 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(100);
+    if (buzzerActive && HAL_GetTick() >= buzzerUntil) {
+      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+      buzzerActive = 0;
+    }
+    osDelay(10);
   }
   /* USER CODE END 5 */
 }
