@@ -65,7 +65,11 @@ const touchgfx::TypedText::TypedTextData typedText_database_DEFAULT[] TEXT_LOCAT
     { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR },
     { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR },
     { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR },
-    { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR }
+    { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR },
+    { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR },  // O2DM: "Play"
+    { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR },  // BACK: "BACK"
+    { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR },  // PLAYWC
+    { 0, touchgfx::LEFT, touchgfx::TEXT_DIRECTION_LTR }   // (padding for alignment)
 };
 
 TEXT_LOCATION_FLASH_PRAGMA

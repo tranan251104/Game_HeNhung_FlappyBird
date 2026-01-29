@@ -5,20 +5,15 @@
 #include <gui/screen2_screen/Screen2Presenter.hpp>
 #include <touchgfx/events/ClickEvent.hpp>
 #include <touchgfx/widgets/Box.hpp>
-#include <touchgfx/widgets/TextArea.hpp>
-
 class Screen2View : public Screen2ViewBase
 {
 public:
-    Screen2View();
+    Screen2View() {}
     virtual ~Screen2View() {}
     virtual void setupScreen();
     virtual void handleClickEvent(const touchgfx::ClickEvent& evt);
     virtual void handleTickEvent();
     virtual void tearDownScreen();
-protected:
-    touchgfx::Box exitBox;
-    touchgfx::TextArea exitText;
 };
 
 #endif // SCREEN2VIEW_HPP

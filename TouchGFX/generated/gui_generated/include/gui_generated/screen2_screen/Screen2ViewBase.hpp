@@ -8,6 +8,7 @@
 #include <mvp/View.hpp>
 #include <gui/screen2_screen/Screen2Presenter.hpp>
 #include <touchgfx/widgets/Box.hpp>
+#include <touchgfx/widgets/TextArea.hpp>
 #include <touchgfx/widgets/TextAreaWithWildcard.hpp>
 #include <touchgfx/widgets/ScalableImage.hpp>
 
@@ -29,6 +30,8 @@ protected:
      */
     touchgfx::Box __background;
     touchgfx::Box backgroundGameOver;
+    touchgfx::Box exitBox;
+    touchgfx::TextArea exitText;
     touchgfx::TextAreaWithOneWildcard endScoreText;
     touchgfx::TextAreaWithOneWildcard topScoreText;
     touchgfx::ScalableImage scalableImage1;

@@ -91,7 +91,8 @@ KEEP extern const touchgfx::Unicode::UnicodeChar texts_all_languages[] TEXT_LOCA
     0x30, 0x0, // @448 "0"
     0x31, 0x0, // @450 "1"
     0x32, 0x0, // @452 "2"
-    0x43, 0x0 // @454 "C"
+    0x43, 0x0, // @454 "C"
+    0x50, 0x6c, 0x61, 0x79, 0x0 // @456 "Play"
 };
 
 TEXT_LOCATION_FLASH_PRAGMA

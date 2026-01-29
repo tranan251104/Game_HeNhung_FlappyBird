@@ -38,6 +38,17 @@ Screen2ViewBase::Screen2ViewBase()
     scalableImage1.setPosition(35, 80, 170, 80);
     scalableImage1.setScalingAlgorithm(touchgfx::ScalableImage::NEAREST_NEIGHBOR);
     add(scalableImage1);
+
+    exitBox.setPosition(0, 249, 240, 71);
+    exitBox.setColor(touchgfx::Color::getColorFromRGB(30, 30, 30));
+    add(exitBox);
+
+    exitText.setXY(90, 265);
+    exitText.setColor(touchgfx::Color::getColorFromRGB(255, 255, 255));
+    exitText.setTypedText(touchgfx::TypedText(T___SINGLEUSE_BACK));
+    exitText.resizeToCurrentText();
+    exitText.setXY((240 - exitText.getWidth()) / 2, 265);
+    add(exitText);
 }
 
 Screen2ViewBase::~Screen2ViewBase()

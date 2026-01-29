@@ -208,6 +208,35 @@
             "Height": 80,
             "Filename": "flappyGameOver.png",
             "ScalingAlgorithm": "Nearest-neighbor"
+          },
+          {
+            "Type": "Box",
+            "Name": "exitBox",
+            "X": 0,
+            "Y": 249,
+            "Width": 240,
+            "Height": 71,
+            "Color": {
+              "Red": 30,
+              "Green": 30,
+              "Blue": 30
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "exitText",
+            "X": 90,
+            "Y": 265,
+            "Width": 60,
+            "Height": 24,
+            "TextId": "__SingleUse_O2DM",
+            "TextRotation": "0",
+            "Color": {
+              "Red": 255,
+              "Green": 255,
+              "Blue": 255
+            },
+            "AutoSize": true
           }
         ],
         "Interactions": [
@@ -243,10 +272,10 @@
           {
             "Type": "Box",
             "Name": "selectedProgramBox",
-            "X": 17,
-            "Y": 19,
-            "Width": 79,
-            "Height": 75,
+            "X": 45,
+            "Y": 50,
+            "Width": 150,
+            "Height": 100,
             "Color": {
               "Red": 105,
               "Green": 106,
@@ -256,18 +285,18 @@
           {
             "Type": "ScalableImage",
             "Name": "flappyBirdIcon",
-            "X": 32,
-            "Y": 28,
-            "Width": 48,
-            "Height": 41,
+            "X": 88,
+            "Y": 55,
+            "Width": 64,
+            "Height": 55,
             "Filename": "bird-removebg-preview.png",
             "ScalingAlgorithm": "Nearest-neighbor"
           },
           {
             "Type": "TextArea",
             "Name": "textArea1",
-            "X": 28,
-            "Y": 74,
+            "X": 95,
+            "Y": 115,
             "Width": 57,
             "Height": 12,
             "TextId": "__SingleUse_5GHL",

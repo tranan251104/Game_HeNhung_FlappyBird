@@ -94,6 +94,12 @@
       <Text Id="__SingleUse_5GHL" Alignment="Left" TypographyId="Small">
         <Translation Language="GB">Flappy Bird</Translation>
       </Text>
+      <Text Id="__SingleUse_PLAY" Alignment="Left" TypographyId="Default">
+        <Translation Language="GB">Play</Translation>
+      </Text>
+      <Text Id="__SingleUse_PLAYWC" Alignment="Left" TypographyId="Default">
+        <Translation Language="GB">&lt;value&gt;</Translation>
+      </Text>
       <Text Id="__SingleUse_E3RK" Alignment="Left" TypographyId="Default">
         <Translation Language="GB">0</Translation>
       </Text>

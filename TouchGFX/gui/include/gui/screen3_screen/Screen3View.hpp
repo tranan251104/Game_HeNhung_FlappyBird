@@ -4,6 +4,8 @@
 #include <gui_generated/screen3_screen/Screen3ViewBase.hpp>
 #include <gui/screen3_screen/Screen3Presenter.hpp>
 #include <touchgfx/events/ClickEvent.hpp>
+#include <touchgfx/widgets/Box.hpp>
+#include <touchgfx/widgets/TextArea.hpp>
 
 class Screen3View : public Screen3ViewBase
 {
@@ -15,6 +17,8 @@ public:
     virtual void handleTickEvent();
     virtual void tearDownScreen();
 protected:
+    touchgfx::Box playButton;
+    touchgfx::TextArea playText;
 };
 
 #endif // SCREEN3VIEW_HPP

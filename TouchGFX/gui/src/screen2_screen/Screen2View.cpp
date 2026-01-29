@@ -9,11 +9,6 @@ extern "C" {
     extern uint16_t topScore;
 }
 
-Screen2View::Screen2View()
-{
-
-}
-
 void Screen2View::setupScreen()
 {
     Screen2ViewBase::setupScreen();
@@ -31,17 +26,11 @@ void Screen2View::setupScreen()
     topScoreText.resizeToCurrentText();
     topScoreText.invalidate();
 
-    // Exit button at X=0, Y=249
-    exitBox.setPosition(0, 249, 240, 71);
-    exitBox.setColor(touchgfx::Color::getColorFromRGB(30, 30, 30));
-    add(exitBox);
-
-    exitText.setXY(0, 270);
-    exitText.setColor(touchgfx::Color::getColorFromRGB(255, 255, 255));
-    exitText.setTypedText(touchgfx::TypedText(T___SINGLEUSE_O2DM));
+    // BACK button is in base - ensure it's visible
+    exitText.setTypedText(touchgfx::TypedText(T___SINGLEUSE_BACK));
     exitText.resizeToCurrentText();
-    exitText.setPosition((240 - exitText.getWidth()) / 2, 270, exitText.getWidth(), exitText.getHeight());
-    add(exitText);
+    exitText.setXY((240 - exitText.getWidth()) / 2, 265);
+    exitText.invalidate();
 }
 
 void Screen2View::handleClickEvent(const touchgfx::ClickEvent& evt)

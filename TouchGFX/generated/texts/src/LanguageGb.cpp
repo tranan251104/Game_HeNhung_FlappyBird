@@ -38,6 +38,7 @@ KEEP extern const uint32_t indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE = {
     268, // T___SINGLEUSE_FHLB: "Computer Science"
     332, // T___SINGLEUSE_DIUU: "Emirhan Kaya"
     381, // T___SINGLEUSE_O2DM: "BACK"
+    381, // T___SINGLEUSE_BACK: "BACK" (same as O2DM)
     358, // T___SINGLEUSE_5GHL: "Flappy Bird"
     448, // T___SINGLEUSE_E3RK: "0"
     220, // T___SINGLEUSE_YE2B: "Top Score: <>"
@@ -45,5 +46,7 @@ KEEP extern const uint32_t indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE = {
     448, // T___SINGLEUSE_5NP2: "0"
     224, // T___SINGLEUSE_IPTN: "Score: <>"
     448, // T___SINGLEUSE_UD29: "0"
-    224  // T___SINGLEUSE_KDY8: "Score: <>"
+    224, // T___SINGLEUSE_KDY8: "Score: <>"
+    456, // T___SINGLEUSE_PLAY: "Play"
+    456  // T___SINGLEUSE_PLAYWC: unused, points to Play
 };
