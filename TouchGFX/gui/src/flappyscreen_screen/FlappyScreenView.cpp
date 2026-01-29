@@ -18,6 +18,8 @@ void FlappyScreenView::setupScreen()
     FlappyScreenViewBase::setupScreen();
 
     screenNumber = 1;
+    bird.setWidth(36);
+    bird.setHeight(36);
 
     wallUp[0] = &wallUp1;
     wallUp[1] = &wallUp2;

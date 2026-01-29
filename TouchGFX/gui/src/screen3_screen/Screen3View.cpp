@@ -52,13 +52,14 @@ void Screen3View::setupScreen()
     playButton.setColor(touchgfx::Color::getColorFromRGB(34, 139, 34));  // Green
     add(playButton);
 
-    playText.setTypedText(touchgfx::TypedText(T___SINGLEUSE_PLAY));
-    playText.setColor(touchgfx::Color::getColorFromRGB(255, 255, 255));
-    playText.resizeToCurrentText();
-    const int16_t textX = btnX + (btnW - playText.getWidth()) / 2;
-    const int16_t textY = btnY + (btnH - playText.getHeight()) / 2;
-    playText.setPosition(textX, textY, playText.getWidth(), playText.getHeight());
-    add(playText);
+    const int16_t playIconW = 26;
+    const int16_t playIconH = 26;
+    const int16_t iconX = btnX + (btnW - playIconW) / 2;
+    const int16_t iconY = btnY + (btnH - playIconH) / 2;
+
+    playIcon.setPosition(iconX, iconY, playIconW, playIconH);
+    playIcon.setColor(touchgfx::Color::getColorFromRGB(255, 255, 255));
+    add(playIcon);
 }
 
 void Screen3View::handleClickEvent(const touchgfx::ClickEvent& evt)

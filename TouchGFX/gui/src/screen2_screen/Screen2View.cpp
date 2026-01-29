@@ -26,11 +26,18 @@ void Screen2View::setupScreen()
     topScoreText.resizeToCurrentText();
     topScoreText.invalidate();
 
-    // BACK button is in base - ensure it's visible
-    exitText.setTypedText(touchgfx::TypedText(T___SINGLEUSE_BACK));
-    exitText.resizeToCurrentText();
-    exitText.setXY((240 - exitText.getWidth()) / 2, 265);
+    // Replace BACK text with a left-pointing triangle icon.
+    exitText.setVisible(false);
     exitText.invalidate();
+
+    const int16_t iconW = 22;
+    const int16_t iconH = 22;
+    const int16_t iconX = exitBox.getX() + (exitBox.getWidth() - iconW) / 2;
+    const int16_t iconY = exitBox.getY() + (exitBox.getHeight() - iconH) / 2;
+
+    backIcon.setPosition(iconX, iconY, iconW, iconH);
+    backIcon.setColor(touchgfx::Color::getColorFromRGB(255, 255, 255));
+    add(backIcon);
 }
 
 void Screen2View::handleClickEvent(const touchgfx::ClickEvent& evt)

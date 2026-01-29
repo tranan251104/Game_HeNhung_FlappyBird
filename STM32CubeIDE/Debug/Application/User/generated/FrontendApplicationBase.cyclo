@@ -1,3 +1,15 @@
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:147:23:virtual touchgfx::Drawable* touchgfx::Drawable::getFirstChild()	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:315:18:virtual void touchgfx::Drawable::setX(int16_t)	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:327:18:virtual void touchgfx::Drawable::setY(int16_t)	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:356:18:virtual void touchgfx::Drawable::setWidth(int16_t)	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:368:18:virtual void touchgfx::Drawable::setHeight(int16_t)	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:378:18:virtual void touchgfx::Drawable::childGeometryChanged()	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:389:18:virtual void touchgfx::Drawable::handleClickEvent(const touchgfx::ClickEvent&)	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:401:18:virtual void touchgfx::Drawable::handleGestureEvent(const touchgfx::GestureEvent&)	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:490:18:virtual void touchgfx::Drawable::handleDragEvent(const touchgfx::DragEvent&)	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:501:18:virtual void touchgfx::Drawable::handleTickEvent()	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:588:18:virtual void touchgfx::Drawable::moveTo(int16_t, int16_t)	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:703:18:virtual void touchgfx::Drawable::setupDrawChain(const touchgfx::Rect&, touchgfx::Drawable**)	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Application.hpp:72:18:virtual void touchgfx::Application::changeToStartScreen()	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Application.hpp:91:18:virtual void touchgfx::Application::appSwitchScreen(uint8_t)	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Application.hpp:104:18:virtual void touchgfx::Application::requestRedraw(touchgfx::Rect&)	1
@@ -9,6 +21,8 @@
 ../../TouchGFX/generated/gui_generated/include/gui_generated/common/FrontendApplicationBase.hpp:16:13:FrontendApplicationBase::~FrontendApplicationBase()	1
 ../../TouchGFX/generated/gui_generated/include/gui_generated/common/FrontendApplicationBase.hpp:18:18:virtual void FrontendApplicationBase::changeToStartScreen()	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/transitions/NoTransition.hpp:35:18:virtual void touchgfx::NoTransition::handleTickEvent()	1
+../../TouchGFX/gui/include/gui/common/BackTriangle.hpp:72:28:virtual touchgfx::Rect BackTriangle::getSolidRect() const	1
+../../TouchGFX/gui/include/gui/common/BackTriangle.hpp:9:7:BackTriangle::~BackTriangle()	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/transitions/NoTransition.hpp:31:7:touchgfx::NoTransition::~NoTransition()	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Callback.hpp:449:18:void touchgfx::Callback<dest_type, void, void, void>::execute() [with dest_type = FrontendApplicationBase]	2
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Callback.hpp:459:18:bool touchgfx::Callback<dest_type, void, void, void>::isValid() const [with dest_type = FrontendApplicationBase]	3
@@ -16,16 +30,20 @@
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Callback.hpp:424:8:virtual touchgfx::Callback<FrontendApplicationBase>::~Callback()	1
 ../../Middlewares/ST/touchgfx/framework/include/mvp/MVPApplication.hpp:43:7:virtual touchgfx::MVPApplication::~MVPApplication()	1
 ../../TouchGFX/generated/gui_generated/include/gui_generated/common/FrontendApplicationBase.hpp:16:13:virtual FrontendApplicationBase::~FrontendApplicationBase()	1
+../../TouchGFX/gui/include/gui/common/BackTriangle.hpp:9:7:virtual BackTriangle::~BackTriangle()	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/transitions/Transition.hpp:89:18:virtual void touchgfx::Transition::invalidate()	1
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/Drawable.hpp:121:18:virtual void touchgfx::Drawable::invalidateContent() const	2
+../../Middlewares/ST/touchgfx/framework/include/touchgfx/widgets/Widget.hpp:45:18:virtual void touchgfx::Widget::getLastChild(int16_t, int16_t, touchgfx::Drawable**)	3
 ../../Middlewares/ST/touchgfx/framework/include/mvp/MVPApplication.hpp:59:18:virtual void touchgfx::MVPApplication::handlePendingScreenTransition()	3
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/hal/HAL.hpp:268:17:static touchgfx::LCD& touchgfx::HAL::lcd()	3
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:23:1:FrontendApplicationBase::FrontendApplicationBase(Model&, FrontendHeap&)	1
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:41:6:void FrontendApplicationBase::gotoFlappyScreenScreenNoTransition()	1
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:54:6:void FrontendApplicationBase::gotoScreen2ScreenNoTransition()	1
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:67:6:void FrontendApplicationBase::gotoScreen3ScreenNoTransition()	1
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:80:6:void FrontendApplicationBase::gotoScreen4ScreenNoTransition()	1
+../../TouchGFX/gui/include/gui/common/BackTriangle.hpp:26:18:virtual void BackTriangle::draw(const touchgfx::Rect&) const	13
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:23:1:FrontendApplicationBase::FrontendApplicationBase(Model&, FrontendHeap&)	1
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:41:6:void FrontendApplicationBase::gotoFlappyScreenScreenNoTransition()	1
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:54:6:void FrontendApplicationBase::gotoScreen2ScreenNoTransition()	1
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:67:6:void FrontendApplicationBase::gotoScreen3ScreenNoTransition()	1
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:80:6:void FrontendApplicationBase::gotoScreen4ScreenNoTransition()	1
 ../../Middlewares/ST/touchgfx/framework/include/common/AbstractPartition.hpp:135:8:T& touchgfx::AbstractPartition::at(uint16_t) [with T = touchgfx::NoTransition]	1
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:86:6:void FrontendApplicationBase::gotoScreen4ScreenNoTransitionImpl()	7
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:73:6:void FrontendApplicationBase::gotoScreen3ScreenNoTransitionImpl()	7
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:60:6:void FrontendApplicationBase::gotoScreen2ScreenNoTransitionImpl()	7
-D:/Game-HeNhung20251/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:47:6:void FrontendApplicationBase::gotoFlappyScreenScreenNoTransitionImpl()	7
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:86:6:void FrontendApplicationBase::gotoScreen4ScreenNoTransitionImpl()	7
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:73:6:void FrontendApplicationBase::gotoScreen3ScreenNoTransitionImpl()	7
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:60:6:void FrontendApplicationBase::gotoScreen2ScreenNoTransitionImpl()	7
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/gui_generated/src/common/FrontendApplicationBase.cpp:47:6:void FrontendApplicationBase::gotoFlappyScreenScreenNoTransitionImpl()	7

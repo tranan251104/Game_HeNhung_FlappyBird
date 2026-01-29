@@ -5,7 +5,7 @@
 #include <gui/screen3_screen/Screen3Presenter.hpp>
 #include <touchgfx/events/ClickEvent.hpp>
 #include <touchgfx/widgets/Box.hpp>
-#include <touchgfx/widgets/TextArea.hpp>
+#include <gui/common/PlayTriangle.hpp>
 
 class Screen3View : public Screen3ViewBase
 {
@@ -18,7 +18,7 @@ public:
     virtual void tearDownScreen();
 protected:
     touchgfx::Box playButton;
-    touchgfx::TextArea playText;
+    PlayTriangle playIcon;
 };
 
 #endif // SCREEN3VIEW_HPP
