@@ -38,10 +38,159 @@
 
 ![Screen Shot](Demo.jpg)
 
+## Báo cáo (Tiếng Việt)
+
+### 1. Tên project & mô tả
+- **Tên project:** Game Flappy Bird trên STM32F429IZIT6-DISC0
+- **Mô tả:** Xây dựng game Flappy Bird chạy trên STM32F429, hiển thị bằng TouchGFX. Người chơi điều khiển chim bay qua chướng ngại vật, tính điểm và hiển thị điểm cao nhất trong phiên.
+
+### 2. Thiết kế phần cứng
+- **Vi điều khiển/board:** STM32F429I-DISCO (STM32F429IZIT6)
+- **Màn hình:** TFT LCD tích hợp (điều khiển bởi LTDC + DMA2D)
+- **Nút nhấn ngoài:** Nút 4 chân, một chân nối GND, chân đối diện nối **PB7** (EXTI7, Pull-up)
+- **Buzzer:** Cực **+** nối 3V, cực **-** nối **PA0** (GPIO Output, active-low)
+- **Nguồn & kết nối:** Cấp nguồn qua USB ST-LINK
+
+### 3. Thiết kế phần mềm
+
+#### 3.1. Yêu cầu chức năng
+- Hiển thị menu chính và cho phép bắt đầu game bằng chạm.
+- Điều khiển chim nhảy bằng nút nhấn ngoài (PB7).
+- Hiển thị điểm hiện tại trong game.
+- Hiển thị màn hình Game Over với điểm và top score.
+- Nút **BACK** để quay về menu.
+- Buzzer kêu “bíp” mỗi lần nhấn nút.
+
+#### 3.2. Chi tiết các chức năng và cách triển khai (very detail)
+
+**a) Menu chính và vào game bằng chạm**
+- TouchGFX nhận sự kiện chạm tại `Screen3View::handleClickEvent()`.
+- Kiểm tra vị trí chạm có nằm trong vùng icon Flappy Bird (ô `selectedProgramBox`).
+- Nếu hợp lệ thì gọi chuyển màn hình sang game.
+
+Trích từ: `TouchGFX/gui/src/screen3_screen/Screen3View.cpp`
+```cpp
+void Screen3View::handleClickEvent(const touchgfx::ClickEvent& evt)
+{
+    if (evt.getType() != touchgfx::ClickEvent::RELEASED) return;
+    const int16_t x = evt.getX(), y = evt.getY();
+    if (x >= selectedProgramBox.getX() && x < selectedProgramBox.getX() + selectedProgramBox.getWidth() &&
+        y >= selectedProgramBox.getY() && y < selectedProgramBox.getY() + selectedProgramBox.getHeight()) {
+        application().gotoFlappyScreenScreenNoTransition();
+    }
+}
+```
+
+**b) Nút nhấn ngoài PB7 điều khiển chim**
+- PB7 cấu hình EXTI7 (falling edge, pull‑up). Khi nhấn, PB7 bị kéo xuống GND.
+- Trong `HAL_GPIO_EXTI_Callback()`, nếu đúng chân PB7 và đang ở màn hình game thì:
+  - Set cờ `User_ButtonState = 1` để TouchGFX nhận key.
+  - Đồng thời kích buzzer (bíp ngắn).
+
+Trích từ: `Core/Src/main.c`
+```c
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    currentmillis = HAL_GetTick();
+    if (GPIO_Pin == GPIO_PIN_7 && currentmillis - previousMillis > 50) {
+        if (screenNumber == 1 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_RESET) {
+            User_ButtonState = 0x01;
+            previousMillis = currentmillis;
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET); // buzzer ON (active-low)
+            buzzerActive = 1;
+            buzzerUntil = currentmillis + 60;
+        }
+    }
+}
+```
+
+**c) Buzzer kêu bíp**
+- PA0 cấu hình GPIO Output, **active‑low** (kéo xuống LOW thì buzzer kêu).
+- Khi nhấn nút, set PA0 LOW ~60ms rồi trả HIGH.
+- Dùng `StartDefaultTask()` để tắt buzzer đúng thời gian mà không block hệ thống.
+
+Trích từ: `Core/Src/main.c`
+```c
+void StartDefaultTask(void *argument)
+{
+    for (;;) {
+        if (buzzerActive && HAL_GetTick() >= buzzerUntil) {
+            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET); // buzzer OFF
+            buzzerActive = 0;
+        }
+        osDelay(10);
+    }
+}
+```
+
+**d) Hiển thị điểm trong game**
+- Trong `FlappyScreenView`, khi chim vượt qua một cột ống thì tăng `gameScore`.
+- Cập nhật text bằng `TypedText` + wildcard để hiện số.
+
+Trích từ: `TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp`
+```cpp
+void FlappyScreenView::updateScoreText()
+{
+    touchgfx::Unicode::snprintf(scoreTextBuffer, SCORETEXT_SIZE, "%u", (unsigned)gameScore);
+    scoreText.setTypedText(touchgfx::TypedText(T___SINGLEUSE_KDY8)); // "Score: <value>"
+    scoreText.setWildcard(scoreTextBuffer);
+    scoreText.resizeToCurrentText();
+    scoreText.invalidate();
+}
+```
+
+**e) Game Over + hiển thị điểm và top score**
+- Khi va chạm hoặc rơi khỏi màn hình: gọi `endGame()`.
+- Ghi `score` và cập nhật `topScore` (RAM, reset khi board reset).
+- Chuyển sang Screen2 (Game Over) và hiển thị 2 giá trị.
+
+Trích từ: `TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp`
+```cpp
+void FlappyScreenView::endGame()
+{
+    score = gameScore;
+    if (gameScore > topScore) topScore = gameScore;
+    gameRunning = false;
+    application().gotoScreen2ScreenNoTransition();
+}
+```
+
+**f) Nút BACK ở Game Over**
+- Có vùng nút BACK (X=0, Y=249, W=240, H=71).
+- Khi chạm trong vùng này, quay lại menu.
+
+Trích từ: `TouchGFX/gui/src/screen2_screen/Screen2View.cpp`
+```cpp
+void Screen2View::handleClickEvent(const touchgfx::ClickEvent& evt)
+{
+    if (evt.getType() != touchgfx::ClickEvent::RELEASED) return;
+    const int16_t x = evt.getX(), y = evt.getY();
+    if (x >= exitBox.getX() && x < exitBox.getX() + exitBox.getWidth() &&
+        y >= exitBox.getY() && y < exitBox.getY() + exitBox.getHeight()) {
+        application().gotoScreen3ScreenNoTransition();
+    }
+}
+```
+
+#### 3.3. Logic game
+- **Mỗi tick (mỗi khung hình):** Khi người chơi nhấn nút, chương trình **gán vận tốc hướng lên** bằng cách đặt `birdVel_fp = -800` (giá trị âm nghĩa là đi lên trong hệ trục). Đồng thời, ở mọi tick, chim luôn bị trọng lực kéo xuống theo tham số `gravity_fp` (ví dụ `50`), nên sau khi nhảy lên sẽ rơi tự do dần về phía dưới.
+- **Ống di chuyển & vòng lặp vô hạn:** Các ống được lưu trong một danh sách hữu hạn (mảng 4 ống trên màn hình). Mỗi tick, toàn bộ ống dịch sang trái theo tốc độ `speed`. Khi một ống đi ra khỏi màn hình bên trái, nó sẽ được đưa trở lại phía bên phải (offset theo `spacing`) để tạo cảm giác màn chơi vô hạn.
+- **Va chạm (AABB collision):** Mỗi ống có một “hộp bao” (Axis‑Aligned Bounding Box). Chim cũng có hộp bao theo tọa độ `(x, y, width, height)`. Va chạm xảy ra khi hai hộp bao **chồng lấn**:
+  - Trục X chồng lấn: `bird.x < pipe.x + pipe.w` **và** `bird.x + bird.w > pipe.x`
+  - Trục Y chồng lấn: `bird.y < pipe.y + pipe.h` **và** `bird.y + bird.h > pipe.y`
+  - Nếu chồng lấn với **ống trên** hoặc **ống dưới** thì Game Over.
+- **Tính điểm & kết thúc:** Khi chim vượt qua một cột ống (ống đã đi qua bên trái chim) thì cộng **+1** điểm. Game kết thúc khi chim chạm ống hoặc rơi khỏi màn hình; điểm cuối cùng được lưu lại. Nếu điểm này cao hơn `TopScore` thì cập nhật `TopScore`.
+
+### 4. Danh sách thành viên & đóng góp
+- **Đoàn Duy Tùng:** Phụ trách triển khai logic game.
+- **Ngô Đức Chung:** Phụ trách triển khai logic game.
+- **Nguyễn Hoàng Vĩnh Phong:** Thiết kế giao diện TouchGFX.
+
 ### Course Information
 
 - Embedded Systems Assignment (Semester 20251) - HUST
 - Topic: Flappy Bird Game
+- **Nhóm:** A1K61
 
 ### Game Logic
 
@@ -65,6 +214,8 @@ I will explain how to load the project onto your own board here.
 
 You should have STM32CubeIDE and TouchGFX installed on your computer.
 The links have been provided in the [Built With](#built-with) section.
+
+> **Lưu ý:** Dự án yêu cầu **TouchGFX 4.22.1** để build và chạy đúng.
 
 ### Installation
 
