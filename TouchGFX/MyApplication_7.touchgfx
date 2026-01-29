@@ -317,18 +317,6 @@
               "ScreenTransitionType": "ScreenTransitionNone",
               "ActionComponent": "FlappyScreen"
             }
-          },
-          {
-            "InteractionName": "Interaction3",
-            "Trigger": {
-              "Type": "TriggerOnEveryTick",
-              "TickCount": 1
-            },
-            "Action": {
-              "Type": "ActionGotoScreen",
-              "ScreenTransitionType": "ScreenTransitionNone",
-              "ActionComponent": "Screen4"
-            }
           }
         ]
       },

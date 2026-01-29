@@ -15,9 +15,11 @@ void Screen3View::setupScreen()
 
     screenNumber = 3;
 
-    // Hide "My Resume" label on the menu screen.
+    // Hide option 2 (BACK) - keep only "Chơi game" / Play game option.
     textArea2.setVisible(false);
     textArea2.invalidate();
+    cvIcon.setVisible(false);
+    cvIcon.invalidate();
 }
 
 void Screen3View::handleClickEvent(const touchgfx::ClickEvent& evt)
