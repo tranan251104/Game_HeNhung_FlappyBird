@@ -6,6 +6,7 @@ extern "C" {
     extern uint8_t screenNumber;
     extern uint16_t score;
     extern uint16_t topScore;
+    void SaveTopScoreToFlash(uint16_t newScore);
 }
 
 FlappyScreenView::FlappyScreenView()
@@ -144,6 +145,7 @@ void FlappyScreenView::endGame()
     score = gameScore;
     if (gameScore > topScore) {
         topScore = gameScore;
+        SaveTopScoreToFlash(topScore);
     }
     gameRunning = false;
     application().gotoScreen2ScreenNoTransition();

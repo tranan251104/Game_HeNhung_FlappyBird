@@ -1,12 +1,12 @@
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/Screen.hpp:104:18:virtual void touchgfx::Screen::afterTransition()	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/TypedText.hpp:65:13:touchgfx::TypedText::~TypedText()	1
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:46:6:virtual void FlappyScreenView::handleKeyEvent(uint8_t)	2
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:128:6:virtual void FlappyScreenView::tearDownScreen()	1
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:47:6:virtual void FlappyScreenView::handleKeyEvent(uint8_t)	2
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:129:6:virtual void FlappyScreenView::tearDownScreen()	1
 ../../Middlewares/ST/touchgfx/framework/include/touchgfx/TypedText.hpp:65:13:virtual touchgfx::TypedText::~TypedText()	1
 ../../TouchGFX/gui/include/gui/flappyscreen_screen/FlappyScreenView.hpp:11:13:FlappyScreenView::~FlappyScreenView()	1
 ../../TouchGFX/gui/include/gui/flappyscreen_screen/FlappyScreenView.hpp:11:13:virtual FlappyScreenView::~FlappyScreenView()	1
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:11:1:FlappyScreenView::FlappyScreenView()	1
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:142:6:void FlappyScreenView::endGame()	2
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:133:6:void FlappyScreenView::updateScoreText()	1
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:16:6:virtual void FlappyScreenView::setupScreen()	2
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:55:6:virtual void FlappyScreenView::handleTickEvent()	18
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:12:1:FlappyScreenView::FlappyScreenView()	1
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:143:6:void FlappyScreenView::endGame()	2
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:134:6:void FlappyScreenView::updateScoreText()	1
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:17:6:virtual void FlappyScreenView::setupScreen()	2
+D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp:56:6:virtual void FlappyScreenView::handleTickEvent()	18

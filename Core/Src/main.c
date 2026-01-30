@@ -25,6 +25,8 @@
 /* USER CODE BEGIN Includes */
 #include "Components/ili9341/ili9341.h"
 #include "app_touchgfx.h"
+#include "stm32f4xx_hal_flash.h"
+#include "stm32f4xx_hal_flash_ex.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,6 +38,8 @@
 /* USER CODE BEGIN PD */
 #define REFRESH_COUNT           ((uint32_t)1386)   /* SDRAM refresh counter */
 #define SDRAM_TIMEOUT           ((uint32_t)0xFFFF)
+#define TOPSCORE_FLASH_ADDR     ((uint32_t)0x081E0000)
+#define TOPSCORE_FLASH_MAGIC    ((uint32_t)0x544F5053)
 
 /**
   * @brief  FMC SDRAM Mode definition register defines
@@ -158,6 +162,53 @@ static LCD_DrvTypeDef* LcdDrv;
 
 uint32_t I2c3Timeout = I2C3_TIMEOUT_MAX; /*<! Value of Timeout when I2C communication fails */
 uint32_t Spi5Timeout = SPI5_TIMEOUT_MAX; /*<! Value of Timeout when SPI communication fails */
+
+static uint32_t Flash_ReadWord(uint32_t address)
+{
+  return *(__IO uint32_t*)address;
+}
+
+void LoadTopScoreFromFlash(void)
+{
+  uint32_t magic = Flash_ReadWord(TOPSCORE_FLASH_ADDR);
+  if (magic == TOPSCORE_FLASH_MAGIC)
+  {
+    topScore = (uint16_t)Flash_ReadWord(TOPSCORE_FLASH_ADDR + 4U);
+  }
+  else
+  {
+    topScore = 0;
+  }
+}
+
+void SaveTopScoreToFlash(uint16_t newScore)
+{
+  uint32_t magic = Flash_ReadWord(TOPSCORE_FLASH_ADDR);
+  uint32_t stored = (magic == TOPSCORE_FLASH_MAGIC) ? Flash_ReadWord(TOPSCORE_FLASH_ADDR + 4U) : 0xFFFFFFFFU;
+  if (stored == (uint32_t)newScore)
+  {
+    return;
+  }
+
+  HAL_FLASH_Unlock();
+  __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
+                         FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+
+  FLASH_EraseInitTypeDef eraseInit;
+  eraseInit.TypeErase = FLASH_TYPEERASE_SECTORS;
+  eraseInit.Sector = FLASH_SECTOR_23;
+  eraseInit.NbSectors = 1;
+  eraseInit.VoltageRange = FLASH_VOLTAGE_RANGE_3;
+
+  uint32_t sectorError = 0;
+  if (HAL_FLASHEx_Erase(&eraseInit, &sectorError) == HAL_OK)
+  {
+    (void)HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, TOPSCORE_FLASH_ADDR, TOPSCORE_FLASH_MAGIC);
+    (void)HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, TOPSCORE_FLASH_ADDR + 4U, (uint32_t)newScore);
+  }
+
+  HAL_FLASH_Lock();
+}
 /* USER CODE END 0 */
 
 /**
@@ -198,6 +249,7 @@ int main(void)
   MX_RNG_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  LoadTopScoreFromFlash();
   // Buzzer is active when PA0 is LOW (wired: +3V to buzzer +, PA0 to buzzer -)
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
 
