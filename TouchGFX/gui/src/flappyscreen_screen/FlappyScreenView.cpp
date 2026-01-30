@@ -271,7 +271,7 @@ void FlappyScreenView::endGame()
         topScore = gameScore;
         
         // Gọi hàm lưu Flash (nếu đã cài đặt trong main.c)
-        // SaveTopScoreToFlash(topScore); 
+        SaveTopScoreToFlash(topScore); 
     }
     gameRunning = false;
     application().gotoScreen2ScreenNoTransition();
