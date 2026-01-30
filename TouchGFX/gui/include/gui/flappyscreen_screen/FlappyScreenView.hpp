@@ -10,22 +10,37 @@ public:
     FlappyScreenView();
     virtual ~FlappyScreenView() {}
     virtual void setupScreen();
+    virtual void tearDownScreen();
     virtual void handleKeyEvent(uint8_t key);
     virtual void handleTickEvent();
-    virtual void tearDownScreen();
-protected:
-    void updateScoreText();
-    void endGame();
 
+protected:
+    // --- CÁC MẢNG QUẢN LÝ ỐNG ---
     touchgfx::ScalableImage* wallUp[4];
     touchgfx::ScalableImage* wallDown[4];
-    int16_t pipeX[4];
-    bool pipePassed[4];
+    int16_t pipeX[4];           // Tọa độ X của từng cặp ống
+    int16_t pipeGapTopY[4];     // Tọa độ Y của mép trên khe hở
+    bool pipePassed[4];         // Trạng thái đã đi qua ống chưa
 
-    int32_t birdY_fp;
-    int32_t birdVel_fp;
-    bool gameRunning;
-    uint16_t gameScore;
+    // --- BIẾN VẬT LÝ & GAME ---
+    int32_t birdY_fp;           // Vị trí Y (Fixed Point)
+    int32_t birdVel_fp;         // Vận tốc Y (Fixed Point)
+    
+    bool gameRunning;           // Game đang chạy hay dừng
+    bool isDying;               // Trạng thái "đang rơi tự do" (sau khi chết)
+    uint16_t gameScore;         // Điểm số tạm thời
+    uint32_t rngState;          // Biến lưu trạng thái Random
+
+    // --- CÁC HÀM HỖ TRỢ ---
+    void updateScoreText();     // Cập nhật điểm lên màn hình
+    void endGame();             // Kết thúc game, chuyển màn hình
+    void startDyingSequence();  // Bắt đầu hiệu ứng rơi tự do
+    
+    // Hàm tính vị trí ống và vẽ lại (quan trọng để không bị đứng hình)
+    void positionPipe(int index, int16_t gapTop);
+    
+    // Hàm tính toán độ cao cột mới dựa trên cột cũ (Random thông minh)
+    int16_t nextGapTopFrom(int16_t prevGapTop);
 };
 
 #endif // FLAPPYSCREENVIEW_HPP
