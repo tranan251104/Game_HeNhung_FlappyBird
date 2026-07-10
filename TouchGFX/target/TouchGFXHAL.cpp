@@ -24,9 +24,6 @@
 
 #include "stm32f4xx.h"
 #include <touchgfx/hal/OSWrappers.hpp>
-#include <MyButtonController.hpp>
-
-MyButtonController bc;
 
 extern "C" {
     void     LCD_IO_WriteReg(uint8_t Reg);
@@ -49,7 +46,6 @@ void TouchGFXHAL::initialize()
     // Please note, HAL::initialize() must be called to initialize the framework.
 
     TouchGFXGeneratedHAL::initialize();
-    setButtonController(&bc);
     // Add animation storage
     setAnimationStorage((void*)animationStorage);
 }

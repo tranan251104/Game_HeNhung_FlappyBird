@@ -3,6 +3,7 @@
 
 #include <gui_generated/flappyscreen_screen/FlappyScreenViewBase.hpp>
 #include <gui/flappyscreen_screen/FlappyScreenPresenter.hpp>
+#include <touchgfx/events/ClickEvent.hpp>
 
 class FlappyScreenView : public FlappyScreenViewBase
 {
@@ -12,6 +13,7 @@ public:
     virtual void setupScreen();
     virtual void tearDownScreen();
     virtual void handleKeyEvent(uint8_t key);
+    virtual void handleClickEvent(const touchgfx::ClickEvent& evt);
     virtual void handleTickEvent();
 
 protected:
@@ -38,6 +40,7 @@ protected:
     
     // Hàm tính vị trí ống và vẽ lại (quan trọng để không bị đứng hình)
     void positionPipe(int index, int16_t gapTop);
+    void flap();
     
     // Hàm tính toán độ cao cột mới dựa trên cột cũ (Random thông minh)
     int16_t nextGapTopFrom(int16_t prevGapTop);

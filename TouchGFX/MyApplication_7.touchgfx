@@ -126,20 +126,6 @@
         ],
         "Interactions": [
           {
-            "InteractionName": "Interaction1",
-            "Trigger": {
-              "Type": "TriggerPhysicalButtonClicked"
-            },
-            "Action": {
-              "Type": "ActionMove",
-              "X": 10,
-              "Y": 10,
-              "Easing": "Linear",
-              "EasingOption": "In",
-              "ActionComponent": "bird"
-            }
-          },
-          {
             "InteractionName": "Interaction3",
             "Trigger": {
               "Type": "TriggerOnEveryTick",
@@ -335,19 +321,7 @@
             "ScalingAlgorithm": "Nearest-neighbor"
           }
         ],
-        "Interactions": [
-          {
-            "InteractionName": "Interaction1",
-            "Trigger": {
-              "Type": "TriggerPhysicalButtonClicked"
-            },
-            "Action": {
-              "Type": "ActionGotoScreen",
-              "ScreenTransitionType": "ScreenTransitionNone",
-              "ActionComponent": "FlappyScreen"
-            }
-          }
-        ]
+        "Interactions": []
       },
       {
         "Name": "Screen4",
@@ -1459,6 +1433,6 @@
       "Vector"
     ]
   },
-  "Version": "4.22.1",
-  "CreatedBy": "4.22.1"
+  "Version": "4.24.1",
+  "CreatedBy": "4.24.1"
 }

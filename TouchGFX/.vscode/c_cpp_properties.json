@@ -1,0 +1,63 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/gui/include",
+                "${workspaceFolder}/generated/gui_generated/include",
+                "${workspaceFolder}/generated/fonts/include",
+                "${workspaceFolder}/generated/images/include",
+                "${workspaceFolder}/generated/texts/include",
+                "${workspaceFolder}/generated/videos/include",
+                "${workspaceFolder}/target",
+                "${workspaceFolder}/target/generated",
+                "${workspaceFolder}/App",
+                "${workspaceFolder}/../Core/Inc",
+                "${workspaceFolder}/../Drivers/CMSIS/Include",
+                "${workspaceFolder}/../Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+                "${workspaceFolder}/../Drivers/STM32F4xx_HAL_Driver/Inc",
+                "${workspaceFolder}/../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+                "${workspaceFolder}/../Drivers/BSP",
+                "${workspaceFolder}/../Middlewares/ST/touchgfx/framework/include",
+                "${workspaceFolder}/../Middlewares/Third_Party/FreeRTOS/Source/include",
+                "${workspaceFolder}/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2",
+                "${workspaceFolder}/../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
+            ],
+            "defines": [
+                "USE_HAL_DRIVER",
+                "USE_BPP=16",
+                "STM32F429xx",
+                "DEBUG"
+            ],
+            "compilerPath": "C:/ST/STM32CubeIDE_2.1.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.14.3.rel1.win32_1.0.100.202602081740/tools/bin/arm-none-eabi-gcc.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "windows-gcc-arm",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/gui/include",
+                    "${workspaceFolder}/generated/gui_generated/include",
+                    "${workspaceFolder}/generated/fonts/include",
+                    "${workspaceFolder}/generated/images/include",
+                    "${workspaceFolder}/generated/texts/include",
+                    "${workspaceFolder}/generated/videos/include",
+                    "${workspaceFolder}/target",
+                    "${workspaceFolder}/target/generated",
+                    "${workspaceFolder}/App",
+                    "${workspaceFolder}/../Core/Inc",
+                    "${workspaceFolder}/../Drivers/CMSIS/Include",
+                    "${workspaceFolder}/../Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+                    "${workspaceFolder}/../Drivers/STM32F4xx_HAL_Driver/Inc",
+                    "${workspaceFolder}/../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+                    "${workspaceFolder}/../Drivers/BSP",
+                    "${workspaceFolder}/../Middlewares/ST/touchgfx/framework/include",
+                    "${workspaceFolder}/../Middlewares/Third_Party/FreeRTOS/Source/include",
+                    "${workspaceFolder}/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2",
+                    "${workspaceFolder}/../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}

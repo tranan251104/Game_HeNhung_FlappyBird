@@ -765,17 +765,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	currentmillis = HAL_GetTick();
-	if (GPIO_Pin == GPIO_PIN_7 && currentmillis - previousMillis > 50){
-		// External button on PB7 controls bird during gameplay.
-		if(screenNumber == 1 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_RESET){
-			User_ButtonState = 0x01;
-			previousMillis = currentmillis;
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
-			buzzerActive = 1;
-			buzzerUntil = currentmillis + 60;
-		}
-	}
+	(void)GPIO_Pin;
 }
 
 

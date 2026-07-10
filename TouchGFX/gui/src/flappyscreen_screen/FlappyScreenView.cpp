@@ -37,7 +37,7 @@ void FlappyScreenView::setupScreen()
     // 1. Khởi tạo biến game
     screenNumber = 1;
     gameScore = 0;
-    gameRunning = false; // Đợi bấm nút mới chạy
+    gameRunning = false; // Đợi chạm màn hình mới chạy
     isDying = false;     // Chưa chết
     
     // Đảm bảo kích thước chim đúng (nếu dùng ScalableImage)
@@ -91,16 +91,27 @@ void FlappyScreenView::setupScreen()
 
 void FlappyScreenView::handleKeyEvent(uint8_t key)
 {
-    // Nếu đang rơi tự do thì không cho nhảy nữa
-    if (isDying) return;
+    (void)key;
+}
 
-    if (key == 0) { // Nút User Button
-        if (!gameRunning) {
-            gameRunning = true; // Bắt đầu game nếu chưa chạy
-        }
-        // Logic Nhảy: Gán vận tốc âm tức thời
-        birdVel_fp = -800; 
+void FlappyScreenView::handleClickEvent(const touchgfx::ClickEvent& evt)
+{
+    if (evt.getType() == touchgfx::ClickEvent::PRESSED) {
+        flap();
     }
+}
+
+void FlappyScreenView::flap()
+{
+    if (isDying) {
+        return;
+    }
+
+    if (!gameRunning) {
+        gameRunning = true;
+    }
+
+    birdVel_fp = -800;
 }
 
 void FlappyScreenView::handleTickEvent()

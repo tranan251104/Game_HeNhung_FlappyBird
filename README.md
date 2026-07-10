@@ -49,7 +49,7 @@
 ### 2. Thiết kế phần cứng
 - **Vi điều khiển/board:** STM32F429I-DISCO (STM32F429IZIT6)
 - **Màn hình:** TFT LCD tích hợp (điều khiển bởi LTDC + DMA2D)
-- **Nút nhấn ngoài:** Nút 4 chân, một chân nối GND, chân đối diện nối **PB7** (EXTI7, Pull-up)
+- **Điều khiển:** Cảm ứng màn hình tích hợp của STM32F429I-DISCO
 - **Buzzer:** Cực **+** nối 3V, cực **-** nối **PA0** (GPIO Output, active-low)
 - **Nguồn & kết nối:** Cấp nguồn qua USB ST-LINK
 
@@ -57,11 +57,11 @@
 
 #### 3.1. Yêu cầu chức năng
 - Hiển thị menu chính và cho phép bắt đầu game bằng chạm.
-- Điều khiển chim nhảy bằng nút nhấn ngoài (PB7).
+- Điều khiển chim nhảy bằng thao tác chạm trên màn hình game.
 - Hiển thị điểm hiện tại trong game.
 - Hiển thị màn hình Game Over với điểm và top score.
 - Nút **BACK** để quay về menu.
-- Buzzer kêu “bíp” mỗi lần nhấn nút.
+- Buzzer PA0 được cấu hình sẵn nhưng không dùng cho thao tác nhảy.
 
 #### 3.2. Chi tiết các chức năng và cách triển khai (very detail)
 
@@ -83,32 +83,37 @@ void Screen3View::handleClickEvent(const touchgfx::ClickEvent& evt)
 }
 ```
 
-**b) Nút nhấn ngoài PB7 điều khiển chim**
-- PB7 cấu hình EXTI7 (falling edge, pull‑up). Khi nhấn, PB7 bị kéo xuống GND.
-- Trong `HAL_GPIO_EXTI_Callback()`, nếu đúng chân PB7 và đang ở màn hình game thì:
-  - Set cờ `User_ButtonState = 1` để TouchGFX nhận key.
-  - Đồng thời kích buzzer (bíp ngắn).
+**b) Chạm màn hình điều khiển chim**
+- TouchGFX nhận sự kiện chạm tại `FlappyScreenView::handleClickEvent()`.
+- Khi màn hình nhận `ClickEvent::PRESSED`, game gọi `flap()` để bắt đầu game nếu cần và gán vận tốc hướng lên cho chim.
+- `handleKeyEvent()` không còn điều khiển chim, nên nút cứng không còn là input gameplay.
 
-Trích từ: `Core/Src/main.c`
-```c
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+Trích từ: `TouchGFX/gui/src/flappyscreen_screen/FlappyScreenView.cpp`
+```cpp
+void FlappyScreenView::handleClickEvent(const touchgfx::ClickEvent& evt)
 {
-    currentmillis = HAL_GetTick();
-    if (GPIO_Pin == GPIO_PIN_7 && currentmillis - previousMillis > 50) {
-        if (screenNumber == 1 && HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_7) == GPIO_PIN_RESET) {
-            User_ButtonState = 0x01;
-            previousMillis = currentmillis;
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET); // buzzer ON (active-low)
-            buzzerActive = 1;
-            buzzerUntil = currentmillis + 60;
-        }
+    if (evt.getType() == touchgfx::ClickEvent::PRESSED) {
+        flap();
     }
+}
+
+void FlappyScreenView::flap()
+{
+    if (isDying) {
+        return;
+    }
+
+    if (!gameRunning) {
+        gameRunning = true;
+    }
+
+    birdVel_fp = -800;
 }
 ```
 
-**c) Buzzer kêu bíp**
+**c) Buzzer PA0**
 - PA0 cấu hình GPIO Output, **active‑low** (kéo xuống LOW thì buzzer kêu).
-- Khi nhấn nút, set PA0 LOW ~60ms rồi trả HIGH.
+- Gameplay hiện không kích buzzer khi chim nhảy.
 - Dùng `StartDefaultTask()` để tắt buzzer đúng thời gian mà không block hệ thống.
 
 Trích từ: `Core/Src/main.c`
@@ -175,7 +180,7 @@ void Screen2View::handleClickEvent(const touchgfx::ClickEvent& evt)
 ```
 
 #### 3.3. Logic game
-- **Mỗi tick (mỗi khung hình):** Khi người chơi nhấn nút, chương trình **gán vận tốc hướng lên** bằng cách đặt `birdVel_fp = -800` (giá trị âm nghĩa là đi lên trong hệ trục). Đồng thời, ở mọi tick, chim luôn bị trọng lực kéo xuống theo tham số `gravity_fp` (ví dụ `50`), nên sau khi nhảy lên sẽ rơi tự do dần về phía dưới.
+- **Mỗi tick (mỗi khung hình):** Khi người chơi chạm màn hình, chương trình **gán vận tốc hướng lên** bằng cách đặt `birdVel_fp = -800` (giá trị âm nghĩa là đi lên trong hệ trục). Đồng thời, ở mọi tick, chim luôn bị trọng lực kéo xuống theo tham số `gravity_fp` (ví dụ `50`), nên sau khi nhảy lên sẽ rơi tự do dần về phía dưới.
 - **Ống di chuyển & vòng lặp vô hạn:** Các ống được lưu trong một danh sách hữu hạn (mảng 4 ống trên màn hình). Mỗi tick, toàn bộ ống dịch sang trái theo tốc độ `speed`. Khi một ống đi ra khỏi màn hình bên trái, nó sẽ được đưa trở lại phía bên phải (offset theo `spacing`) để tạo cảm giác màn chơi vô hạn.
 - **Va chạm (AABB collision):** Mỗi ống có một “hộp bao” (Axis‑Aligned Bounding Box). Chim cũng có hộp bao theo tọa độ `(x, y, width, height)`. Va chạm xảy ra khi hai hộp bao **chồng lấn**:
   - Trục X chồng lấn: `bird.x < pipe.x + pipe.w` **và** `bird.x + bird.w > pipe.x`
@@ -197,7 +202,7 @@ void Screen2View::handleClickEvent(const touchgfx::ClickEvent& evt)
 ### Game Logic
 
 - Main menu: tap the Flappy Bird icon tile to start the game.
-- In-game: press the button to make the bird jump.
+- In-game: tap the screen to make the bird jump.
 - Game over: tap the **BACK** button at the bottom to return to the main menu.
 - Score increases when the bird passes a pipe column.
 

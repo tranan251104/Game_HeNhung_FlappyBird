@@ -1,6 +1,6 @@
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:82:43:const touchgfx::TypedText::TypedTextData* TypedTextDatabase::getInstance(touchgfx::LanguageId)	1
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:87:10:uint16_t TypedTextDatabase::getInstanceSize()	1
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:92:24:const touchgfx::Font** TypedTextDatabase::getFonts()	1
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:97:23:const touchgfx::Font* TypedTextDatabase::setFont(touchgfx::FontId, const touchgfx::Font*)	1
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:104:6:void TypedTextDatabase::resetFont(touchgfx::FontId)	9
-D:/GameNhung/STM32-FLAPPY-BIRD/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:134:1:cpp)	1
+C:/Users/DELL/Game-HeNhung20251/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:82:43:const touchgfx::TypedText::TypedTextData* TypedTextDatabase::getInstance(touchgfx::LanguageId)	1
+C:/Users/DELL/Game-HeNhung20251/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:87:10:uint16_t TypedTextDatabase::getInstanceSize()	1
+C:/Users/DELL/Game-HeNhung20251/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:92:24:const touchgfx::Font** TypedTextDatabase::getFonts()	1
+C:/Users/DELL/Game-HeNhung20251/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:97:23:const touchgfx::Font* TypedTextDatabase::setFont(touchgfx::FontId, const touchgfx::Font*)	1
+C:/Users/DELL/Game-HeNhung20251/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:104:6:void TypedTextDatabase::resetFont(touchgfx::FontId)	9
+C:/Users/DELL/Game-HeNhung20251/TouchGFX/generated/texts/src/TypedTextDatabase.cpp:134:1:cpp)	1
