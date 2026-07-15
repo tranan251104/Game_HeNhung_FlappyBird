@@ -40,6 +40,10 @@
 #define SDRAM_TIMEOUT           ((uint32_t)0xFFFF)
 #define TOPSCORE_FLASH_ADDR     ((uint32_t)0x081E0000)
 #define TOPSCORE_FLASH_MAGIC    ((uint32_t)0x544F5053)
+#define TOPSCORE_FLASH_VERSION  ((uint32_t)0x20260715)
+#define TOPSCORE_VERSION_ADDR   (TOPSCORE_FLASH_ADDR + 4U)
+#define TOPSCORE_VALUE_ADDR     (TOPSCORE_FLASH_ADDR + 8U)
+#define GAME_FEEDBACK_ENABLE_BUZZER 0U
 
 /**
   * @brief  FMC SDRAM Mode definition register defines
@@ -106,8 +110,13 @@ uint16_t topScore = 0;
 uint8_t timeCounter = 0;
 uint8_t autoMode = 0;
 uint8_t screenNumber = 3; // FLAPPY IS 1 OTHERS NUMBERED
-uint8_t buzzerActive = 0;
-uint32_t buzzerUntil = 0;
+volatile uint8_t buzzerActive = 0;
+volatile uint32_t buzzerUntil = 0;
+volatile uint8_t feedbackLedMask = 0;
+volatile uint32_t feedbackLedUntil = 0;
+volatile uint8_t flappyPauseRequested = 0;
+static const uint32_t GAME_FEEDBACK_MIN_BUZZER_MS = 70U;
+static const uint32_t GAME_FEEDBACK_MAX_BUZZER_MS = 260U;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -171,9 +180,10 @@ static uint32_t Flash_ReadWord(uint32_t address)
 void LoadTopScoreFromFlash(void)
 {
   uint32_t magic = Flash_ReadWord(TOPSCORE_FLASH_ADDR);
-  if (magic == TOPSCORE_FLASH_MAGIC)
+  uint32_t version = Flash_ReadWord(TOPSCORE_VERSION_ADDR);
+  if ((magic == TOPSCORE_FLASH_MAGIC) && (version == TOPSCORE_FLASH_VERSION))
   {
-    topScore = (uint16_t)Flash_ReadWord(TOPSCORE_FLASH_ADDR + 4U);
+    topScore = (uint16_t)Flash_ReadWord(TOPSCORE_VALUE_ADDR);
   }
   else
   {
@@ -184,7 +194,9 @@ void LoadTopScoreFromFlash(void)
 void SaveTopScoreToFlash(uint16_t newScore)
 {
   uint32_t magic = Flash_ReadWord(TOPSCORE_FLASH_ADDR);
-  uint32_t stored = (magic == TOPSCORE_FLASH_MAGIC) ? Flash_ReadWord(TOPSCORE_FLASH_ADDR + 4U) : 0xFFFFFFFFU;
+  uint32_t version = Flash_ReadWord(TOPSCORE_VERSION_ADDR);
+  uint32_t stored = ((magic == TOPSCORE_FLASH_MAGIC) && (version == TOPSCORE_FLASH_VERSION)) ?
+                    Flash_ReadWord(TOPSCORE_VALUE_ADDR) : 0xFFFFFFFFU;
   if (stored == (uint32_t)newScore)
   {
     return;
@@ -204,10 +216,89 @@ void SaveTopScoreToFlash(uint16_t newScore)
   if (HAL_FLASHEx_Erase(&eraseInit, &sectorError) == HAL_OK)
   {
     (void)HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, TOPSCORE_FLASH_ADDR, TOPSCORE_FLASH_MAGIC);
-    (void)HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, TOPSCORE_FLASH_ADDR + 4U, (uint32_t)newScore);
+    (void)HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, TOPSCORE_VERSION_ADDR, TOPSCORE_FLASH_VERSION);
+    (void)HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, TOPSCORE_VALUE_ADDR, (uint32_t)newScore);
   }
 
   HAL_FLASH_Lock();
+}
+
+static void GameFeedback_SetLed(uint8_t ledMask, GPIO_PinState state)
+{
+  if ((ledMask & GAME_FEEDBACK_LED_GREEN) != 0U)
+  {
+    HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13, state);
+  }
+  if ((ledMask & GAME_FEEDBACK_LED_RED) != 0U)
+  {
+    HAL_GPIO_WritePin(GPIOG, GPIO_PIN_14, state);
+  }
+}
+
+static void GameFeedback_ConfigBuzzerOffPin(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_1);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+}
+
+static void GameFeedback_StartBuzzer(void)
+{
+  /*
+   * README wiring uses an active-low buzzer module:
+   * buzzer + -> 3V, buzzer - -> PA0.
+   * A steady LOW is more reliable than PWM for these modules.
+   */
+  GameFeedback_ConfigBuzzerOffPin();
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+}
+
+void GameFeedback_Play(uint16_t buzzerMs, uint8_t ledMask)
+{
+  uint32_t now = HAL_GetTick();
+  uint32_t feedbackDuration = (uint32_t)buzzerMs;
+
+  if (buzzerMs > 0U)
+  {
+    if (feedbackDuration < GAME_FEEDBACK_MIN_BUZZER_MS)
+    {
+      feedbackDuration = GAME_FEEDBACK_MIN_BUZZER_MS;
+    }
+    if (feedbackDuration > GAME_FEEDBACK_MAX_BUZZER_MS)
+    {
+      feedbackDuration = GAME_FEEDBACK_MAX_BUZZER_MS;
+    }
+
+    if (GAME_FEEDBACK_ENABLE_BUZZER != 0U)
+    {
+      GameFeedback_StartBuzzer();
+      buzzerActive = 1U;
+      buzzerUntil = now + feedbackDuration;
+    }
+  }
+
+  if (ledMask != 0U)
+  {
+    feedbackLedMask |= ledMask;
+    GameFeedback_SetLed(ledMask, GPIO_PIN_SET);
+    feedbackLedUntil = now + ((buzzerMs > 0U) ? feedbackDuration : 80U);
+  }
+}
+
+uint8_t GameFeedback_ConsumePauseRequest(void)
+{
+  if (flappyPauseRequested != 0U)
+  {
+    flappyPauseRequested = 0U;
+    return 1U;
+  }
+  return 0U;
 }
 /* USER CODE END 0 */
 
@@ -250,7 +341,7 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   LoadTopScoreFromFlash();
-  // Buzzer is active when PA0 is LOW (wired: +3V to buzzer +, PA0 to buzzer -)
+  // Buzzer is active-low on PA0: HIGH is idle, LOW plays the beep.
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
 
   MX_TouchGFX_PreOSInit();
@@ -608,6 +699,7 @@ static void MX_TIM2_Init(void)
 
   TIM_ClockConfigTypeDef sClockSourceConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
 
   /* USER CODE BEGIN TIM2_Init 1 */
 
@@ -630,6 +722,14 @@ static void MX_TIM2_Init(void)
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
     Error_Handler();
   }
@@ -759,13 +859,30 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
+  HAL_GPIO_WritePin(GPIOG, GPIO_PIN_13|GPIO_PIN_14, GPIO_PIN_RESET);
+
+  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	(void)GPIO_Pin;
+  static uint32_t lastPauseTick = 0U;
+
+  if (GPIO_Pin == GPIO_PIN_7)
+  {
+    uint32_t now = HAL_GetTick();
+    if ((now - lastPauseTick) > 180U)
+    {
+      flappyPauseRequested = 1U;
+      lastPauseTick = now;
+    }
+  }
 }
 
 
@@ -1107,9 +1224,14 @@ void StartDefaultTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    if (buzzerActive && HAL_GetTick() >= buzzerUntil) {
-      HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+    uint32_t now = HAL_GetTick();
+    if (buzzerActive && now >= buzzerUntil) {
+      GameFeedback_ConfigBuzzerOffPin();
       buzzerActive = 0;
+    }
+    if (feedbackLedMask && now >= feedbackLedUntil) {
+      GameFeedback_SetLed(feedbackLedMask, GPIO_PIN_RESET);
+      feedbackLedMask = 0;
     }
     osDelay(10);
   }

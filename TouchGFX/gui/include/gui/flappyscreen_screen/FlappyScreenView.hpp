@@ -17,32 +17,33 @@ public:
     virtual void handleTickEvent();
 
 protected:
-    // --- CÁC MẢNG QUẢN LÝ ỐNG ---
     touchgfx::ScalableImage* wallUp[4];
     touchgfx::ScalableImage* wallDown[4];
-    int16_t pipeX[4];           // Tọa độ X của từng cặp ống
-    int16_t pipeGapTopY[4];     // Tọa độ Y của mép trên khe hở
-    bool pipePassed[4];         // Trạng thái đã đi qua ống chưa
+    int16_t pipeX[4];
+    int16_t pipeGapTopY[4];
+    bool pipePassed[4];
+    bool pipeChallenge[4];
 
-    // --- BIẾN VẬT LÝ & GAME ---
-    int32_t birdY_fp;           // Vị trí Y (Fixed Point)
-    int32_t birdVel_fp;         // Vận tốc Y (Fixed Point)
-    
-    bool gameRunning;           // Game đang chạy hay dừng
-    bool isDying;               // Trạng thái "đang rơi tự do" (sau khi chết)
-    uint16_t gameScore;         // Điểm số tạm thời
-    uint32_t rngState;          // Biến lưu trạng thái Random
+    int32_t birdY_fp;
+    int32_t birdVel_fp;
 
-    // --- CÁC HÀM HỖ TRỢ ---
-    void updateScoreText();     // Cập nhật điểm lên màn hình
-    void endGame();             // Kết thúc game, chuyển màn hình
-    void startDyingSequence();  // Bắt đầu hiệu ứng rơi tự do
-    
-    // Hàm tính vị trí ống và vẽ lại (quan trọng để không bị đứng hình)
+    bool gameRunning;
+    bool isPaused;
+    bool isDying;
+    uint16_t gameScore;
+    uint32_t rngState;
+
+    void updateScoreText();
+    void endGame();
+    void startDyingSequence();
+    void togglePause();
+    uint8_t difficultyLevel() const;
+    int16_t currentPipeSpeed() const;
+    int16_t currentGapSize() const;
+    int16_t currentSpacing() const;
+
     void positionPipe(int index, int16_t gapTop);
     void flap();
-    
-    // Hàm tính toán độ cao cột mới dựa trên cột cũ (Random thông minh)
     int16_t nextGapTopFrom(int16_t prevGapTop);
 };
 

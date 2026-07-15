@@ -245,6 +245,10 @@ After downloading the project to your computer, navigate to the 'STM32CubeIDE' f
 3. Connect the STM32F429I-DISCO board via ST-LINK USB.
 4. Click **Debug** or **Run** to flash and start.
 
+### Hardware note: no external buzzer mode
+
+Current feedback works without extra wiring when the STM32F429I-DISCO is only connected to the computer by USB. Game events use the onboard LEDs only. External PA0 buzzer output is disabled by default with `GAME_FEEDBACK_ENABLE_BUZZER 0U` in `Core/Src/main.c`; set it to `1U` only if a buzzer is wired as documented.
+
 ## Roadmap
 
 See the [open issues](https://github.com/ihbkaiser/ihbkaiser-Game-HeNhung20251/issues) for a list of proposed features (and known issues).

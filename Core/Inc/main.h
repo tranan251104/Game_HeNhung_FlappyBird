@@ -47,6 +47,8 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+#define GAME_FEEDBACK_LED_GREEN 0x01U
+#define GAME_FEEDBACK_LED_RED   0x02U
 
 /* USER CODE END EM */
 
@@ -54,6 +56,8 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+void GameFeedback_Play(uint16_t buzzerMs, uint8_t ledMask);
+uint8_t GameFeedback_ConsumePauseRequest(void);
 
 /* USER CODE END EFP */
 

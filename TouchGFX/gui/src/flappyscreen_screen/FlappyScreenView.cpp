@@ -1,21 +1,17 @@
 #include <gui/flappyscreen_screen/FlappyScreenView.hpp>
 #include <touchgfx/Unicode.hpp>
 #include <texts/TextKeysAndLanguages.hpp>
+#include "main.h"
 
-// --- LIÊN KẾT VỚI BIẾN TOÀN CỤC CỦA HỆ THỐNG (MAIN.C) ---
 extern "C" {
     extern uint8_t screenNumber;
     extern uint16_t score;
     extern uint16_t topScore;
-    // Hàm lưu vào Flash (bạn cần tự viết trong main.c theo hướng dẫn trước)
-    // Nếu chưa có thì comment dòng này lại để tránh lỗi biên dịch
-    void SaveTopScoreToFlash(uint16_t newScore); 
+    void SaveTopScoreToFlash(uint16_t newScore);
 }
 
-// --- CÁC HÀM TIỆN ÍCH STATIC (Random & Kẹp giá trị) ---
 static uint32_t lcgNext(uint32_t state)
 {
-    // Thuật toán Linear Congruential Generator đơn giản
     return state * 1103515245u + 12345u;
 }
 
@@ -26,6 +22,11 @@ static int16_t clamp16(int16_t v, int16_t lo, int16_t hi)
     return v;
 }
 
+static bool shouldUseChallengePipe(uint16_t score, uint32_t state)
+{
+    return (score >= 6U) && (((state >> 24) % 4U) == 0U);
+}
+
 FlappyScreenView::FlappyScreenView()
 {
 }
@@ -34,18 +35,16 @@ void FlappyScreenView::setupScreen()
 {
     FlappyScreenViewBase::setupScreen();
 
-    // 1. Khởi tạo biến game
     screenNumber = 1;
     gameScore = 0;
-    gameRunning = false; // Đợi chạm màn hình mới chạy
-    isDying = false;     // Chưa chết
-    
-    // Đảm bảo kích thước chim đúng (nếu dùng ScalableImage)
+    gameRunning = false;
+    isPaused = false;
+    isDying = false;
+
     bird.setWidth(24);
-    bird.setHeight(24); 
+    bird.setHeight(24);
     updateScoreText();
 
-    // 2. Gán địa chỉ các widget vào mảng để dễ quản lý vòng lặp
     wallUp[0] = &wallUp1;
     wallUp[1] = &wallUp2;
     wallUp[2] = &wallUp3;
@@ -56,42 +55,38 @@ void FlappyScreenView::setupScreen()
     wallDown[2] = &wallDown3;
     wallDown[3] = &wallDown4;
 
-    // 3. Cấu hình vị trí xuất phát các ống
     const int16_t screenH = 320;
-    const int16_t gapSize = 90;
+    const int16_t gapSize = currentGapSize();
     const int16_t minGapTop = 30;
     const int16_t maxGapTop = screenH - gapSize - 30;
-    const int16_t spacing = 90;  // Khoảng cách giữa các ống
-    const int16_t startX = 300;  // Vị trí xuất phát ngoài màn hình bên phải
+    const int16_t spacing = currentSpacing();
+    const int16_t startX = 300;
 
-    // Khởi tạo hạt giống Random
-    rngState = 0xA5A5A5A5u; 
+    rngState = 0xA5A5A5A5u;
 
-    // Rải đều các ống ra
     for (int i = 0; i < 4; ++i) {
-        pipeX[i] = startX + (i * spacing); // SỬA LỖI DÍNH CHÙM: Cộng dồn vị trí
+        pipeX[i] = startX + (i * spacing);
         pipePassed[i] = false;
+        pipeChallenge[i] = false;
 
         if (i == 0) {
-            // Ống đầu tiên nằm giữa
             pipeGapTopY[i] = (minGapTop + maxGapTop) / 2;
         } else {
-            // Các ống sau random lệch đi một chút so với ống trước
             pipeGapTopY[i] = nextGapTopFrom(pipeGapTopY[i - 1]);
         }
-        
-        // Vẽ ống lần đầu
+
         positionPipe(i, pipeGapTopY[i]);
     }
 
-    // 4. Khởi tạo vật lý chim
     birdY_fp = bird.getY() * 256;
     birdVel_fp = 0;
 }
 
 void FlappyScreenView::handleKeyEvent(uint8_t key)
 {
-    (void)key;
+    if (key == 'p' || key == 'P') {
+        togglePause();
+    }
 }
 
 void FlappyScreenView::handleClickEvent(const touchgfx::ClickEvent& evt)
@@ -112,50 +107,52 @@ void FlappyScreenView::flap()
     }
 
     birdVel_fp = -800;
+    GameFeedback_Play(35U, GAME_FEEDBACK_LED_GREEN);
 }
 
 void FlappyScreenView::handleTickEvent()
 {
-    // --- TRƯỜNG HỢP 1: CHIM ĐANG RƠI TỰ DO (CHẾT) ---
+    if (GameFeedback_ConsumePauseRequest()) {
+        togglePause();
+    }
+
+    if (isPaused) {
+        return;
+    }
+
     if (isDying) {
-        const int32_t gravity_dead = 60; // Rơi nhanh hơn chút
+        const int32_t gravity_dead = 60;
         birdVel_fp += gravity_dead;
         birdY_fp += birdVel_fp;
-        
-        int16_t newY = (int16_t)(birdY_fp / 256);
-        bird.moveTo(bird.getX(), newY); // Chỉ di chuyển chim, ống đứng yên
 
-        // Nếu rơi quá màn hình -> Chuyển màn hình Game Over
+        int16_t newY = (int16_t)(birdY_fp / 256);
+        bird.moveTo(bird.getX(), newY);
+
         if (newY > 320) {
             endGame();
         }
-        return; // Dừng hàm, không xử lý phần dưới
+        return;
     }
 
-    // --- TRƯỜNG HỢP 2: GAME CHƯA CHẠY ---
     if (!gameRunning) {
         return;
     }
 
-    // --- TRƯỜNG HỢP 3: GAME ĐANG CHẠY ---
     const int32_t gravity_fp = 45;
-    const int16_t speed = 2;
+    const int16_t speed = currentPipeSpeed();
     const int16_t screenH = 320;
-    const int16_t spacing = 70;
+    const int16_t spacing = currentSpacing();
 
-    // 1. Vật lý Chim (Trọng lực)
     birdVel_fp += gravity_fp;
     birdY_fp += birdVel_fp;
     int16_t newY = (int16_t)(birdY_fp / 256);
 
-    // Chạm nóc hoặc đáy màn hình -> Chết
     if (newY < 0 || newY + bird.getHeight() > screenH) {
         startDyingSequence();
         return;
     }
     bird.moveTo(bird.getX(), newY);
 
-    // 2. Tìm ống xa nhất (để nối đuôi)
     int16_t maxX = pipeX[0];
     int16_t maxIndex = 0;
     for (int i = 1; i < 4; ++i) {
@@ -165,37 +162,32 @@ void FlappyScreenView::handleTickEvent()
         }
     }
 
-    // 3. Xử lý logic từng ống
     for (int i = 0; i < 4; ++i) {
-        // Di chuyển sang trái
         pipeX[i] -= speed;
 
-        // Nếu đi hết màn hình trái -> Tái tạo bên phải
         if (pipeX[i] + wallUp[i]->getWidth() < 0) {
             int prevIndex = maxIndex;
-            // Tính chiều cao mới dựa trên ống xa nhất hiện tại
             pipeGapTopY[i] = nextGapTopFrom(pipeGapTopY[prevIndex]);
-            
+            pipeChallenge[i] = shouldUseChallengePipe(gameScore, rngState);
+
             pipeX[i] = maxX + spacing;
             pipePassed[i] = false;
-            
-            // Cập nhật mốc xa nhất mới
+
             maxX = pipeX[i];
             maxIndex = i;
         }
 
-        // Vẽ lại vị trí ống (Có Invalidate)
         positionPipe(i, pipeGapTopY[i]);
 
-        // Tính điểm: Nếu chim vượt qua mép phải của ống
         if (!pipePassed[i] && (pipeX[i] + wallUp[i]->getWidth() < bird.getX())) {
             pipePassed[i] = true;
-            gameScore++;
+            uint16_t awardedPoints = pipeChallenge[i] ? 2U : 1U;
+            gameScore = (uint16_t)(gameScore + awardedPoints);
+            GameFeedback_Play(pipeChallenge[i] ? 95U : 55U, GAME_FEEDBACK_LED_GREEN);
             updateScoreText();
         }
 
-        // Kiểm tra va chạm (AABB Collision)
-        int16_t bx = bird.getX() + 4; // Thu nhỏ hitbox chim 1 chút cho dễ thở
+        int16_t bx = bird.getX() + 4;
         int16_t by = bird.getY() + 4;
         int16_t bw = bird.getWidth() - 8;
         int16_t bh = bird.getHeight() - 8;
@@ -214,31 +206,63 @@ void FlappyScreenView::handleTickEvent()
         bool hitDown = (bx < dx + dw) && (bx + bw > dx) && (by < dy + dh) && (by + bh > dy);
 
         if (hitUp || hitDown) {
-            startDyingSequence(); // Bắt đầu rơi tự do
+            startDyingSequence();
             return;
         }
     }
 }
 
-// Hàm tính toán độ cao cột tiếp theo (Random delta)
+uint8_t FlappyScreenView::difficultyLevel() const
+{
+    uint16_t level = (uint16_t)(gameScore / 6U);
+    return (uint8_t)((level > 3U) ? 3U : level);
+}
+
+int16_t FlappyScreenView::currentPipeSpeed() const
+{
+    return (int16_t)(2 + difficultyLevel());
+}
+
+int16_t FlappyScreenView::currentGapSize() const
+{
+    return (int16_t)(92 - (difficultyLevel() * 8));
+}
+
+int16_t FlappyScreenView::currentSpacing() const
+{
+    return (int16_t)(82 + (difficultyLevel() * 4));
+}
+
+void FlappyScreenView::togglePause()
+{
+    if (isDying || !gameRunning) {
+        return;
+    }
+
+    isPaused = !isPaused;
+    GameFeedback_Play(isPaused ? 120U : 55U, GAME_FEEDBACK_LED_GREEN | GAME_FEEDBACK_LED_RED);
+}
+
 int16_t FlappyScreenView::nextGapTopFrom(int16_t prevGapTop)
 {
     const int16_t screenH = 320;
-    const int16_t gapSize = 90;
+    const int16_t gapSize = currentGapSize();
     const int16_t minGapTop = 30;
     const int16_t maxGapTop = screenH - gapSize - 30;
-    const int16_t deltaMax = 35; // Độ khó: chênh lệch tối đa giữa 2 cột
+    const int16_t deltaMax = (int16_t)(35 + (difficultyLevel() * 8));
 
     rngState = lcgNext(rngState);
     int16_t delta = (int16_t)((rngState >> 16) % (2 * deltaMax + 1)) - deltaMax;
     return clamp16((int16_t)(prevGapTop + delta), minGapTop, maxGapTop);
 }
 
-// Hàm vẽ ống (SỬA LỖI ĐỨNG HÌNH)
 void FlappyScreenView::positionPipe(int index, int16_t gapTop)
 {
     const int16_t screenH = 320;
-    const int16_t gapSize = 90;
+    int16_t gapSize = currentGapSize();
+    if (pipeChallenge[index]) {
+        gapSize = clamp16((int16_t)(gapSize - 14), 58, gapSize);
+    }
     int16_t gapBottom = gapTop + gapSize;
 
     int16_t upH = gapTop;
@@ -247,23 +271,26 @@ void FlappyScreenView::positionPipe(int index, int16_t gapTop)
     if (upH < 1) upH = 1;
     if (downH < 1) downH = 1;
 
-    // QUAN TRỌNG: invalidate() TRƯỚC khi di chuyển để xóa hình cũ
     wallUp[index]->invalidate();
     wallDown[index]->invalidate();
 
-    // Cập nhật tọa độ và kích thước
     wallUp[index]->setPosition(pipeX[index], 0, wallUp[index]->getWidth(), upH);
     wallDown[index]->setPosition(pipeX[index], gapBottom, wallDown[index]->getWidth(), downH);
 
-    // QUAN TRỌNG: invalidate() SAU khi di chuyển để vẽ hình mới
     wallUp[index]->invalidate();
     wallDown[index]->invalidate();
 }
 
 void FlappyScreenView::startDyingSequence()
 {
-    isDying = true;       // Bật cờ chết
-    birdVel_fp = -500;    // Nảy lên một chút (hiệu ứng va chạm)
+    if (isDying) {
+        return;
+    }
+
+    isPaused = false;
+    isDying = true;
+    birdVel_fp = -500;
+    GameFeedback_Play(180U, GAME_FEEDBACK_LED_RED);
 }
 
 void FlappyScreenView::updateScoreText()
@@ -280,11 +307,11 @@ void FlappyScreenView::endGame()
     score = gameScore;
     if (gameScore > topScore) {
         topScore = gameScore;
-        
-        // Gọi hàm lưu Flash (nếu đã cài đặt trong main.c)
-        SaveTopScoreToFlash(topScore); 
+        SaveTopScoreToFlash(topScore);
+        GameFeedback_Play(160U, GAME_FEEDBACK_LED_GREEN | GAME_FEEDBACK_LED_RED);
     }
     gameRunning = false;
+    isPaused = false;
     application().gotoScreen2ScreenNoTransition();
 }
 
